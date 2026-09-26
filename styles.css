@@ -1690,3 +1690,329 @@ footer {
     font-size: 43px;
   }
 }
+/* Scenario laboratory: all figures are illustrative, never live traffic. */
+.scenario-panel {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 14px 32px;
+  border: 1px solid #d9e2cb;
+  border-radius: 12px;
+  background: #fafcf5;
+  padding: 25px;
+  margin-bottom: 18px;
+}
+.scenario-intro .eyebrow {
+  margin-bottom: 9px;
+  font-size: 9px;
+}
+.scenario-intro h3 {
+  font-size: 24px;
+}
+.scenario-intro p {
+  font-size: 12px;
+  margin-top: 9px;
+}
+.scenario-settings select {
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+.reset-demo {
+  border: 0;
+  padding: 6px 0;
+  background: none;
+  color: #496936;
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reset-demo:hover {
+  color: #203d30;
+}
+.scenario-description {
+  grid-column: 1/-1;
+  border-top: 1px solid #e1e7d5;
+  padding-top: 14px;
+  font-size: 12px;
+  color: #657451;
+}
+.traffic-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.traffic-summary > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fcfdf8;
+  border: 1px solid #dfe5d4;
+  border-radius: 8px;
+  padding: 13px 17px;
+}
+.traffic-summary strong {
+  font-size: 24px;
+  line-height: 1.2;
+  font-family: Manrope, sans-serif;
+}
+.traffic-summary div > span:last-child {
+  font-size: 11px;
+  color: #697a58;
+}
+.traffic-details {
+  margin-top: 32px;
+  padding-top: 30px;
+  border-top: 1px solid #dce3ce;
+}
+.traffic-details-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.traffic-details-heading .eyebrow {
+  font-size: 8px;
+  margin-bottom: 10px;
+}
+.traffic-details-heading h3 {
+  font-size: 23px;
+}
+.traffic-details-heading p:not(.eyebrow) {
+  font-size: 12px;
+  margin-top: 8px;
+}
+.traffic-details-heading label {
+  min-width: 185px;
+}
+.traffic-details-heading select {
+  margin-bottom: 0;
+  font-size: 12px;
+}
+.list-status {
+  font-size: 11px;
+  margin: 18px 0 12px;
+  color: #5b7047;
+}
+.traffic-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.traffic-road-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid #dbe3cc;
+  border-radius: 9px;
+  background: #fcfdf8;
+  padding: 19px;
+  color: #284631;
+  white-space: normal;
+}
+.traffic-road-card:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  border-color: #96af75;
+}
+.traffic-road-card > strong {
+  font-size: 15px;
+}
+.road-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 9px;
+  letter-spacing: 0.2px;
+}
+.road-badge.green {
+  background: #e6efda;
+  color: #426030;
+}
+.road-badge.amber {
+  background: #f6ecd0;
+  color: #785a16;
+}
+.road-badge.red {
+  background: #fae4dc;
+  color: #9a402a;
+}
+.road-numbers {
+  font-size: 11px;
+  color: #677655;
+}
+.road-note {
+  font-size: 10px;
+  color: #788568;
+}
+.road-action {
+  font-size: 10px;
+  margin-top: auto;
+  padding-top: 4px;
+  color: #426338;
+}
+.incident-feed {
+  margin-top: 26px;
+  padding: 23px;
+  background: #e8eedf;
+  border: 1px solid #dbe3ce;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
+}
+.incident-feed h3 {
+  font-size: 19px;
+}
+.incident-feed > div > p {
+  font-size: 11px;
+  margin-top: 10px;
+}
+.incident-feed ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.incident-feed li {
+  border-left: 2px solid #a7bb89;
+  padding: 0 0 0 15px;
+}
+.event-source {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #6b7e54;
+  margin-bottom: 5px;
+}
+.incident-feed strong {
+  display: block;
+  font-size: 12px;
+}
+.incident-feed li p {
+  font-size: 11px;
+  margin-top: 4px;
+}
+.empty-incidents {
+  font-size: 12px;
+  color: #526945;
+}
+.map-marker[aria-pressed="true"] circle:first-child {
+  stroke: #294c33;
+  stroke-width: 2;
+  opacity: 0.7;
+}
+.map-message > div {
+  min-width: 0;
+}
+.status-time {
+  font-size: 10px;
+}
+.demo-section .map-controls button {
+  width: 36px;
+  height: 36px;
+}
+.map-marker {
+  pointer-events: all;
+}
+@media (max-width: 800px) {
+  .traffic-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .traffic-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .scenario-panel {
+    grid-template-columns: 1fr 230px;
+    gap: 18px;
+    padding: 20px;
+  }
+  .incident-feed {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+@media (max-width: 570px) {
+  .scenario-panel {
+    grid-template-columns: 1fr;
+    padding: 19px;
+  }
+  .scenario-intro h3 {
+    font-size: 23px;
+  }
+  .scenario-description {
+    font-size: 11px;
+  }
+  .scenario-settings select,
+  .traffic-details-heading select {
+    font-size: 16px;
+  }
+  .traffic-summary {
+    gap: 9px;
+  }
+  .traffic-summary > div {
+    padding: 12px 10px;
+    gap: 7px;
+  }
+  .traffic-summary strong {
+    font-size: 21px;
+  }
+  .traffic-summary div > span:last-child {
+    font-size: 9px;
+  }
+  .traffic-details-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .traffic-list {
+    grid-template-columns: 1fr;
+  }
+  .traffic-road-card {
+    padding: 18px;
+    gap: 12px;
+  }
+  .road-badge {
+    font-size: 10px;
+  }
+  .road-numbers {
+    font-size: 12px;
+  }
+  .incident-feed {
+    padding: 19px;
+  }
+  .map-message {
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .map-message .status-time {
+    margin-left: 17px;
+  }
+  .demo-section .map-controls {
+    top: 8px;
+    right: 8px;
+  }
+  .reset-demo {
+    padding: 10px 0;
+    font-size: 12px;
+  }
+}
+/* Keep the selection details off the map so no location is hidden underneath. */
+.map-panel > .map-message {
+  position: static;
+  margin: 12px 16px 0;
+  box-shadow: none;
+  background: #f1f5e8;
+  border-color: #e1e8d6;
+}
+@media (max-width: 570px) {
+  .map-panel > .map-message {
+    margin: 10px 10px 0;
+  }
+  .interactive-map {
+    height: 270px;
+  }
+}

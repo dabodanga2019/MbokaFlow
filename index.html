@@ -177,6 +177,54 @@
             Explorez la carte et testez un signalement. Les données sont
             fictives et ne doivent pas être utilisées pour la navigation.
           </p>
+          <div class="scenario-panel">
+            <div class="scenario-intro">
+              <span class="eyebrow">LE LABORATOIRE DU TRAFIC</span>
+              <h3>Une ville, trois situations.</h3>
+              <p>
+                Changez le scénario pour voir évoluer la carte et les chiffres
+                fictifs.
+              </p>
+            </div>
+            <div class="scenario-settings">
+              <label for="scenarioSelect">Situation à explorer</label
+              ><select
+                id="scenarioSelect"
+                aria-describedby="scenarioDescription"
+              >
+                <option value="calme">Circulation calme · 11 h 00</option>
+                <option value="pointe" selected>
+                  Heure de pointe · 17 h 30
+                </option>
+                <option value="pluie">Fortes pluies · 18 h 15</option></select
+              ><button id="resetDemo" class="reset-demo" type="button">
+                ↺ Recommencer la démo
+              </button>
+            </div>
+            <p
+              id="scenarioDescription"
+              class="scenario-description"
+              role="status"
+            ></p>
+          </div>
+          <div class="traffic-summary" aria-label="Résumé du trafic simulé">
+            <div>
+              <span class="dot green"></span><strong id="countGreen">3</strong
+              ><span>axes fluides</span>
+            </div>
+            <div>
+              <span class="dot amber"></span><strong id="countAmber">2</strong
+              ><span>axes ralentis</span>
+            </div>
+            <div>
+              <span class="dot red"></span><strong id="countRed">1</strong
+              ><span>axes perturbés</span>
+            </div>
+            <div>
+              <span aria-hidden="true">⚑</span
+              ><strong id="countReports">0</strong><span>vos signalements</span>
+            </div>
+          </div>
           <div class="demo-layout">
             <div class="map-panel">
               <form class="map-toolbar" id="searchForm">
@@ -201,23 +249,23 @@
                     ⌖
                   </button>
                 </div>
-                <div class="map-message" id="mapMessage" role="status">
-                  <span class="dot amber"></span>
-                  <div>
-                    <strong>Boulevard du 30 Juin</strong
-                    ><span>Circulation ralentie · Données simulées</span>
-                  </div>
-                  <span class="status-time">+8 min</span>
-                </div>
                 <span class="map-credit"
                   >Schéma illustratif · Non géographique</span
                 >
+              </div>
+              <div class="map-message" id="mapMessage" role="status">
+                <span class="dot amber"></span>
+                <div>
+                  <strong>Boulevard du 30 Juin</strong
+                  ><span>Circulation ralentie · Données simulées</span>
+                </div>
+                <span class="status-time">+8 min</span>
               </div>
               <div class="map-bottom">
                 <div class="legend">
                   <span><i class="dot green"></i>Fluide</span
                   ><span><i class="dot amber"></i>Ralenti</span
-                  ><span><i class="dot red"></i>Embouteillage</span>
+                  ><span><i class="dot red"></i>Perturbé</span>
                 </div>
                 <span class="map-hint">Cliquez sur un point ↗</span>
               </div>
@@ -251,13 +299,45 @@
                   Partager le signalement <span>↗</span>
                 </button>
                 <p class="form-note">
-                  Mode démo : visible uniquement dans votre navigateur, jusqu’au
-                  rechargement.
+                  Mode démo : vos essais restent visibles en changeant de
+                  scénario, jusqu’au rechargement ou à la réinitialisation.
                 </p>
                 <p id="incidentResult" class="result" role="status" hidden></p>
               </form>
             </aside>
           </div>
+          <section
+            class="traffic-details"
+            aria-labelledby="trafficDetailsTitle"
+          >
+            <div class="traffic-details-heading">
+              <div>
+                <p class="eyebrow">TOUT EST SIMULÉ, RIEN N’EST EN DIRECT</p>
+                <h3 id="trafficDetailsTitle">Le point sur les six axes</h3>
+                <p>Vitesses et retards inventés pour cette démonstration.</p>
+              </div>
+              <label for="trafficFilter"
+                >Afficher<select id="trafficFilter">
+                  <option value="all">Tous les axes</option>
+                  <option value="green">Axes fluides</option>
+                  <option value="amber">Axes ralentis</option>
+                  <option value="red">Axes perturbés</option>
+                </select></label
+              >
+            </div>
+            <p id="trafficListStatus" class="list-status" role="status"></p>
+            <div id="trafficList" class="traffic-list"></div>
+            <div class="incident-feed">
+              <div>
+                <h3>Événements du scénario</h3>
+                <p>
+                  Exemples inventés et vos essais locaux. Aucun événement
+                  vérifié.
+                </p>
+              </div>
+              <ul id="scenarioIncidents"></ul>
+            </div>
+          </section>
           <div class="demo-footer">
             <span>◎</span>
             <p>
@@ -405,6 +485,7 @@
         ><span>RDC <span class="flag-dot">●</span></span>
       </div>
     </footer>
+    <script src="traffic-data.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

@@ -5,57 +5,74 @@ const locations = {
     area: "Gombe",
     x: 243,
     y: 152,
-    status: "Embouteillage",
-    color: "#d9755d",
-    delay: "+15 min",
   },
   juin: {
     name: "Boulevard du 30 Juin",
     area: "Gombe",
     x: 355,
     y: 208,
-    status: "Circulation ralentie",
-    color: "#d5a23b",
-    delay: "+8 min",
   },
   matadi: {
     name: "Route de Matadi",
     area: "Ngaliema",
     x: 202,
     y: 330,
-    status: "Circulation fluide",
-    color: "#7eab59",
-    delay: "Fluide",
   },
   limete: {
     name: "Limete",
     area: "Limete",
     x: 428,
     y: 308,
-    status: "Circulation ralentie",
-    color: "#d5a23b",
-    delay: "+6 min",
   },
   matete: {
     name: "Matete",
     area: "Matete",
     x: 478,
     y: 376,
-    status: "Circulation fluide",
-    color: "#7eab59",
-    delay: "Fluide",
   },
   masina: {
     name: "Masina",
     area: "Masina",
     x: 558,
     y: 318,
-    status: "Circulation fluide",
-    color: "#7eab59",
-    delay: "Fluide",
   },
 };
 const reports = new Map();
+const trafficLevels = {
+  green: { color: "#7eab59", label: "Circulation fluide" },
+  amber: { color: "#d5a23b", label: "Circulation ralentie" },
+  red: { color: "#d9755d", label: "Circulation perturbée" },
+};
+let activeScenario = "pointe";
+let selectedLocation = "juin";
+function roadState(key) {
+  const base = trafficScenarios[activeScenario].roads[key];
+  const local = reports.get(key);
+  return local
+    ? {
+        level: "red",
+        speed: null,
+        delay: null,
+        incident: local,
+        detail: "Votre essai local : aucune vitesse ni aucun retard calculé.",
+        local: true,
+      }
+    : base;
+}
+function delayLabel(state) {
+  return state.delay === null
+    ? "Non estimé"
+    : state.delay === 0
+      ? "Aucun retard"
+      : `+${state.delay} min`;
+}
+function stateLabel(state) {
+  return state.local
+    ? "Signalement local"
+    : state.incident === "Route bloquée"
+      ? "Route bloquée"
+      : trafficLevels[state.level].label;
+}
 function makeMap(interactive) {
   const prefix = interactive ? "demo" : "hero";
   const markerKeys = interactive
@@ -80,12 +97,13 @@ function makeMap(interactive) {
   <path d="M-20 132C81 106 97 94 158 113S251 150 332 132 428 111 483 120 553 162 660 158" fill="none" stroke="#fffef4" stroke-width="7"/>
   <g fill="none" stroke="#fafbf2" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M-20 314L140 238 289 191 405 212 655 312"/><path d="M64 450L162 344 250 270 281 159 298 119"/><path d="M211 450L249 354 356 276 402 195 442 117"/><path d="M351 450L429 315 542 241 633 172"/><path d="M-20 216L121 164 207 158 302 202 451 279 640 396"/><path d="M80 450L211 365 363 360 504 386 660 439"/><path d="M-20 378L160 293 330 308 508 195 638 223"/></g>
   <g fill="none" stroke="#c5ceb8" stroke-width=".7"><path d="M-20 314L140 238 289 191 405 212 655 312"/><path d="M64 450L162 344 250 270 281 159 298 119"/><path d="M211 450L249 354 356 276 402 195 442 117"/><path d="M351 450L429 315 542 241 633 172"/></g>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"><path d="M167 137L207 158 280 191" stroke="#d9755d"/><path d="M287 191L355 204 405 212 455 232" stroke="#dfb04c"/><path d="M106 405L162 344 202 310 247 274" stroke="#8aad61"/><path d="M368 419L429 315 483 280" stroke="#8aad61"/><path d="M464 234L534 263 599 290" stroke="#dfb04c"/></g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"><path data-road="port" d="M167 137L207 158 280 191"/><path data-road="juin" d="M287 191L355 204 405 212 455 232"/><path data-road="matadi" d="M106 405L162 344 202 310 247 274"/><path data-road="limete" d="M400 365L429 315 483 280"/><path data-road="masina" d="M464 234L534 263 599 290"/><path data-road="matete" d="M427 372L504 386 549 401"/></g>
   <g font-family="Arial,sans-serif" text-anchor="middle"><text x="393" y="65" font-family="Georgia,serif" font-style="italic" font-size="13" letter-spacing="2" fill="#7e9d90" transform="rotate(4 393 65)">Fleuve Congo</text><g font-size="9" letter-spacing="2" fill="#7a8e68"><text x="210" y="205">GOMBE</text><text x="101" y="316">NGALIEMA</text><text x="360" y="340">LIMETE</text><text x="525" y="414">MATETE</text><text x="572" y="275">MASINA</text></g><g font-size="6.5" fill="#97a185"><text x="326" y="229" transform="rotate(12 326 229)">Boulevard du 30 Juin</text><text x="158" y="376" transform="rotate(-44 158 376)">Route de Matadi</text><text x="460" y="343" transform="rotate(-56 460 343)">Boulevard Lumumba</text></g></g>
   ${markerKeys
     .map((key) => {
       const l = locations[key];
-      return `<g class="${interactive ? "map-marker" : ""}" data-key="${key}" transform="translate(${l.x} ${l.y})" ${interactive ? `tabindex="0" role="button" aria-label="${l.name} : ${l.status}"` : ""}><circle r="17" fill="${l.color}" opacity=".16"/><circle class="marker-core" r="8" fill="${l.color}" stroke="#fffdf5" stroke-width="3" filter="url(#${prefix}-shadow)"/><circle r="2" fill="white"/></g>`;
+      const level = trafficLevels[roadState(key).level];
+      return `<g class="${interactive ? "map-marker" : ""}" data-key="${key}" transform="translate(${l.x} ${l.y})" ${interactive ? `tabindex="0" role="button" aria-label="${l.name} : ${level.label}"` : ""}><circle r="17" fill="${level.color}" opacity=".16"/><circle class="marker-core" r="8" fill="${level.color}" stroke="#fffdf5" stroke-width="3" filter="url(#${prefix}-shadow)"/><circle r="2" fill="white"/></g>`;
     })
     .join("")}
   ${!interactive ? '<g transform="translate(302 269)"><circle r="26" fill="#244733" opacity=".1"/><circle r="17" fill="#244733" stroke="#fafcf3" stroke-width="4"/><path d="M-6 5L6-7 2 7-1 1Z" fill="#d9ebae"/></g>' : ""}</svg>`;
@@ -95,26 +113,177 @@ document.querySelector(".demo-map-art").innerHTML = makeMap(true);
 
 const message = document.getElementById("mapMessage");
 function showLocation(key) {
-  const l = locations[key];
-  const report = reports.get(key);
+  selectedLocation = key;
+  const location = locations[key];
+  const state = roadState(key);
   message.replaceChildren();
   const dot = document.createElement("span");
   dot.className = "dot";
-  dot.style.background = report ? "#d9755d" : l.color;
+  dot.style.background = trafficLevels[state.level].color;
   const content = document.createElement("div");
   const title = document.createElement("strong");
-  title.textContent = l.name;
+  title.textContent = location.name;
   const status = document.createElement("span");
-  status.textContent = report
-    ? `${report} · Votre signalement de démonstration`
-    : `${l.status} · Données simulées`;
+  status.textContent = `${state.incident || stateLabel(state)} · ${state.local ? "Votre signalement de démonstration" : "Données simulées"}`;
   content.append(title, status);
   const delay = document.createElement("span");
   delay.className = "status-time";
-  delay.textContent = report ? "Démo" : l.delay;
+  delay.textContent = delayLabel(state);
   message.append(dot, content, delay);
   document.getElementById("incidentPlace").value = key;
+  document.querySelectorAll(".map-marker").forEach((marker) => {
+    marker.setAttribute("aria-pressed", String(marker.dataset.key === key));
+  });
 }
+function renderTraffic() {
+  const counts = { green: 0, amber: 0, red: 0 };
+  Object.keys(locations).forEach((key) => {
+    const state = roadState(key);
+    const level = trafficLevels[state.level];
+    counts[state.level]++;
+    const marker = document.querySelector(`.map-marker[data-key="${key}"]`);
+    marker.querySelector(".marker-core").setAttribute("fill", level.color);
+    marker.querySelector("circle").setAttribute("fill", level.color);
+    marker.setAttribute(
+      "aria-label",
+      `${locations[key].name} : ${stateLabel(state)}, ${state.incident || "sans incident"}, données simulées`,
+    );
+    document
+      .querySelector(`.demo-map-art [data-road="${key}"]`)
+      .setAttribute("stroke", level.color);
+  });
+  document.getElementById("countGreen").textContent = counts.green;
+  document.getElementById("countAmber").textContent = counts.amber;
+  document.getElementById("countRed").textContent = counts.red;
+  document.getElementById("countReports").textContent = reports.size;
+  const scenario = trafficScenarios[activeScenario];
+  document.getElementById("scenarioDescription").textContent =
+    `${scenario.label} · Heure fictive : ${scenario.time}. ${scenario.description}`;
+  renderTrafficList();
+  renderIncidents();
+  showLocation(selectedLocation);
+}
+function renderTrafficList() {
+  const filter = document.getElementById("trafficFilter").value;
+  const list = document.getElementById("trafficList");
+  list.replaceChildren();
+  const keys = Object.keys(locations).filter(
+    (key) => filter === "all" || roadState(key).level === filter,
+  );
+  document.getElementById("trafficListStatus").textContent = keys.length
+    ? `${keys.length} axe${keys.length > 1 ? "s" : ""} affiché${keys.length > 1 ? "s" : ""} sur 6 · données fictives`
+    : "Aucun axe dans cette catégorie pour ce scénario. Essayez un autre filtre.";
+  keys.forEach((key) => {
+    const state = roadState(key);
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "traffic-road-card";
+    card.dataset.location = key;
+    const badge = document.createElement("span");
+    badge.className = `road-badge ${state.level}`;
+    badge.textContent = stateLabel(state);
+    const name = document.createElement("strong");
+    name.textContent = locations[key].name;
+    const numbers = document.createElement("span");
+    numbers.className = "road-numbers";
+    numbers.textContent = `Vitesse : ${state.speed === null ? "non estimée" : `${state.speed} km/h`} · Retard : ${delayLabel(state)}`;
+    const note = document.createElement("span");
+    note.className = "road-note";
+    note.textContent = `${state.incident || "Sans incident"} · ${state.local ? "Votre essai local" : "Exemple fictif"}`;
+    const action = document.createElement("span");
+    action.className = "road-action";
+    action.textContent = "Voir sur la carte ↗";
+    card.append(badge, name, numbers, note, action);
+    card.addEventListener("click", () => {
+      setZoom(1);
+      showLocation(key);
+      const marker = document.querySelector(`.map-marker[data-key="${key}"]`);
+      marker.focus({ preventScroll: true });
+      document
+        .querySelector(".map-panel")
+        .scrollIntoView({
+          block: "center",
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "instant"
+            : "smooth",
+        });
+    });
+    list.append(card);
+  });
+}
+function renderIncidents() {
+  const feed = document.getElementById("scenarioIncidents");
+  feed.replaceChildren();
+  Object.keys(locations).forEach((key) => {
+    const base = trafficScenarios[activeScenario].roads[key];
+    const events = [];
+    if (base.incident)
+      events.push({
+        title: `${base.incident} · ${locations[key].name}`,
+        detail: base.detail,
+        local: false,
+      });
+    if (reports.has(key))
+      events.push({
+        title: `${reports.get(key)} · ${locations[key].name}`,
+        detail:
+          "Votre signalement reste uniquement dans cette page. Il ne remplace pas un événement réel.",
+        local: true,
+      });
+    events.forEach((event) => {
+      const item = document.createElement("li");
+      const title = document.createElement("strong");
+      title.textContent = event.title;
+      const description = document.createElement("p");
+      description.textContent = event.detail;
+      const source = document.createElement("span");
+      source.className = "event-source";
+      source.textContent = event.local
+        ? "VOTRE ESSAI LOCAL"
+        : "ÉVÉNEMENT FICTIF";
+      item.append(source, title, description);
+      feed.append(item);
+    });
+  });
+  if (!feed.children.length) {
+    const item = document.createElement("li");
+    item.className = "empty-incidents";
+    item.textContent =
+      "Aucun événement dans ce scénario. Essayez de partager votre propre signalement fictif !";
+    feed.append(item);
+  }
+}
+document
+  .getElementById("scenarioSelect")
+  .addEventListener("change", (event) => {
+    activeScenario = event.target.value;
+    renderTraffic();
+  });
+document
+  .getElementById("trafficFilter")
+  .addEventListener("change", renderTrafficList);
+document.getElementById("resetDemo").addEventListener("click", () => {
+  reports.clear();
+  activeScenario = "pointe";
+  selectedLocation = "juin";
+  document.getElementById("scenarioSelect").value = "pointe";
+  document.getElementById("trafficFilter").value = "all";
+  document.getElementById("searchPlace").value = "";
+  document.getElementById("incidentForm").reset();
+  document.getElementById("incidentResult").hidden = true;
+  setZoom(1);
+  renderTraffic();
+  document.getElementById("scenarioDescription").textContent +=
+    " Démo réinitialisée : vos essais locaux ont été effacés.";
+});
+// The hero remains a static illustration of the initial rush-hour scenario.
+document.querySelectorAll(".hero-map [data-road]").forEach((road) => {
+  road.setAttribute(
+    "stroke",
+    trafficLevels[roadState(road.dataset.road).level].color,
+  );
+});
 document.querySelectorAll(".map-marker").forEach((marker) => {
   marker.addEventListener("click", () => showLocation(marker.dataset.key));
   marker.addEventListener("keydown", (e) => {
@@ -172,17 +341,13 @@ document.getElementById("incidentForm").addEventListener("submit", (e) => {
   const key = document.getElementById("incidentPlace").value;
   if (!locations[key] || !type) return;
   reports.set(key, type);
-  const marker = document.querySelector(`.map-marker[data-key="${key}"]`);
-  marker.querySelector(".marker-core").setAttribute("fill", "#d9755d");
-  marker.setAttribute(
-    "aria-label",
-    `${locations[key].name} : ${type}, signalement démo`,
-  );
   const result = document.getElementById("incidentResult");
   result.hidden = false;
   result.textContent = `Merci ! « ${type} » à ${locations[key].name} apparaît sur votre carte de démonstration. Aucun signalement réel n’a été envoyé.`;
-  showLocation(key);
+  selectedLocation = key;
+  renderTraffic();
 });
+renderTraffic();
 const menu = document.querySelector(".menu-toggle");
 const nav = document.getElementById("nav");
 function closeMenu() {

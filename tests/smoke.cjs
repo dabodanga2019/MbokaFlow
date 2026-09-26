@@ -47,6 +47,110 @@ const assert = require("node:assert/strict");
   await page.locator('.map-marker[data-key="matete"]').focus();
   await page.keyboard.press("Enter");
   assert.match(await page.locator("#mapMessage").innerText(), /Matete/);
+  // Scenarios, map colours, statistics and list filters share one data model.
+  await page.locator("#resetDemo").click();
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const key of [
+      "port",
+      "juin",
+      "matadi",
+      "limete",
+      "matete",
+      "masina",
+    ]) {
+      await page.locator(`.map-marker[data-key="${key}"]`).click();
+      assert.equal(await page.locator("#incidentPlace").inputValue(), key);
+    }
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  for (const [scenario, counts, incidents] of [
+    ["calme", [6, 0, 0], 0],
+    ["pointe", [3, 2, 1], 2],
+    ["pluie", [0, 3, 3], 3],
+  ]) {
+    await page.locator("#scenarioSelect").selectOption(scenario);
+    const actual = await page
+      .locator("#countGreen, #countAmber, #countRed")
+      .allTextContents();
+    assert.deepEqual(actual.map(Number), counts);
+    assert.equal(await page.locator(".traffic-road-card").count(), 6);
+    assert.equal(
+      await page.locator("#scenarioIncidents .event-source").count(),
+      incidents,
+    );
+    assert.equal(
+      await page.evaluate(() =>
+        [...document.querySelectorAll(".map-marker")].every(
+          (marker) =>
+            marker.querySelector(".marker-core").getAttribute("fill") ===
+            document
+              .querySelector(
+                `.demo-map-art [data-road="${marker.dataset.key}"]`,
+              )
+              .getAttribute("stroke"),
+        ),
+      ),
+      true,
+    );
+  }
+  await page.locator("#trafficFilter").selectOption("green");
+  assert.equal(await page.locator(".traffic-road-card").count(), 0);
+  assert.match(
+    await page.locator("#trafficListStatus").innerText(),
+    /Aucun axe/,
+  );
+  await page.locator("#trafficFilter").selectOption("red");
+  assert.equal(await page.locator(".traffic-road-card").count(), 3);
+  const matete = page.locator('.traffic-road-card[data-location="matete"]');
+  assert.match(await matete.innerText(), /Route bloquée/);
+  assert.match(await matete.innerText(), /Non estimé/);
+  await matete.click();
+  assert.match(await page.locator("#mapMessage").innerText(), /Matete/);
+  assert.equal(
+    await page
+      .locator('.map-marker[data-key="matete"]')
+      .getAttribute("aria-pressed"),
+    "true",
+  );
+  await page.locator("#scenarioSelect").selectOption("calme");
+  assert.match(
+    await page.locator("#scenarioIncidents").innerText(),
+    /Aucun événement/,
+  );
+  await page.locator("#incidentType").selectOption("Inondation");
+  await page.locator("#incidentPlace").selectOption("port");
+  await page.locator("#incidentForm button").click();
+  assert.equal(await page.locator("#countReports").innerText(), "1");
+  assert.equal(await page.locator("#countGreen").innerText(), "5");
+  assert.equal(await page.locator("#countRed").innerText(), "1");
+  assert.match(
+    await page.locator("#scenarioIncidents").innerText(),
+    /VOTRE ESSAI LOCAL/,
+  );
+  assert.match(
+    await page.locator('.traffic-road-card[data-location="port"]').innerText(),
+    /non estimée/,
+  );
+  await page.locator("#scenarioSelect").selectOption("pointe");
+  assert.equal(await page.locator("#countReports").innerText(), "1");
+  assert.equal(await page.locator("#scenarioIncidents li").count(), 3);
+  // A second report at the same location updates the existing local report.
+  await page.locator("#incidentType").selectOption("Accident");
+  await page.locator("#incidentForm button").click();
+  assert.equal(await page.locator("#countReports").innerText(), "1");
+  assert.match(await page.locator("#mapMessage").innerText(), /Accident/);
+  await page.locator("#resetDemo").click();
+  assert.equal(await page.locator("#scenarioSelect").inputValue(), "pointe");
+  assert.equal(await page.locator("#trafficFilter").inputValue(), "all");
+  assert.equal(await page.locator("#countReports").innerText(), "0");
+  assert.equal(await page.locator(".traffic-road-card").count(), 6);
+  assert.equal(await page.locator("#incidentResult").isHidden(), true);
+  assert.equal(await page.locator("#zoomOut").isDisabled(), true);
+  assert.match(
+    await page.locator("#scenarioDescription").innerText(),
+    /réinitialisée/,
+  );
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     assert.ok(
@@ -83,7 +187,7 @@ const assert = require("node:assert/strict");
   );
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: search, empty results, incident report, marker update, keyboard markers, zoom/reset, mobile menu, contact draft, overflow at 5 sizes, no JS errors.",
+    "PASS: three scenarios, counts, map/list consistency, filters and empty states, report persistence/reset, search, keyboard markers, zoom, mobile menu, contact draft, overflow at 5 sizes, no JS errors.",
   );
   await browser.close();
 })().catch((e) => {

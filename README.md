@@ -19,6 +19,10 @@ Open `http://localhost:3000`. Alternatively, `npm run dev` runs the same command
 - Interactive, keyboard-accessible schematic traffic map with six locations.
 - Accent-insensitive search for the available neighbourhoods and roads.
 - Zoom, reset and selectable traffic markers.
+- Three deterministic scenarios: a calm morning, rush hour and heavy rain.
+- Six road cards with invented speeds, delays and explicit non-estimated values for closures.
+- Status filters, traffic summary counts, scenario incidents and local-report overlays.
+- Scenario changes retain local trial reports; “Recommencer la démo” clears them and restores the default scenario.
 - Incident reports that update the map locally for the current page session.
 - Contact form that prepares a message in the visitor's email application.
 - Form labels, live status messages, skip link, visible focus and reduced-motion support.
@@ -35,7 +39,8 @@ The website has no analytics, geolocation collection or local storage. Google Fo
 
 - `index.html`: French content, sections and forms.
 - `styles.css`: responsive design and reduced-motion handling.
-- `script.js`: map illustration, simulated data and interactions.
+- `script.js`: map illustration and interactions.
+- `traffic-data.js`: the three editable, entirely fictional traffic datasets.
 - `favicon.svg`: site icon.
 - `tests/smoke.cjs`: browser interaction and responsive-layout checks.
 
@@ -55,16 +60,22 @@ In another terminal:
 npm test
 ```
 
-Tests cover location search, no-result feedback, simulated reports, marker updates, keyboard activation, zoom/reset, mobile navigation, the contact draft, JavaScript errors, and horizontal overflow at 320, 390, 768, 1024 and 1440 pixels.
+Tests cover location search, no-result feedback, simulated reports, marker updates, keyboard activation, zoom/reset, mobile navigation, the contact draft, JavaScript errors, scenario changes, map/list/count consistency, filters, empty states, report reset, and horizontal overflow at 320, 390, 768, 1024 and 1440 pixels.
 
 Optional environment variables: `BASE_URL` selects the server URL; `CHROMIUM_PATH` selects an existing Chromium executable.
 
 ## Deployment
 
-Serve `index.html`, `styles.css`, `script.js` and `favicon.svg` from any static web host. Asset paths are relative, so the website also works under a GitHub Pages project path.
+Serve `index.html`, `styles.css`, `script.js`, `traffic-data.js` and `favicon.svg` from any static web host. Asset paths are relative, so the website also works under a GitHub Pages project path.
 
 The existing `.github/workflows/static.yml` deploys to GitHub Pages on pushes to `main` or manual dispatch, subject to the repository's Pages configuration. Creating or previewing files on this working branch does not publish them automatically.
 
 ## Next steps toward a production service
 
 Connect authorized geographic and traffic data sources, design consent and privacy controls, build secure incident ingestion and moderation, and validate data quality before enabling navigation or real-world public reports.
+
+## Editing the simulated traffic
+
+Update `traffic-data.js` to change a scenario. Each scenario defines a fictional time, a description and the six location keys (`port`, `juin`, `matadi`, `limete`, `matete`, `masina`). Each road specifies a `level` (`green`, `amber`, `red`), a speed in km/h, a delay in minutes (`null` if not estimated), and optional `incident` and `detail` strings. These figures are hand-authored examples, not historical or live measurements.
+
+The map colours, road cards and counters use the same scenario state. Trial reports override a location's displayed state with a local alert and unknown speed/delay; the event list preserves both the scenario event and the trial report with separate labels. Reports are never transmitted. There is no automatic refresh or implied live feed.
